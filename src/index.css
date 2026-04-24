@@ -1,0 +1,183 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --nike-orange: #FF6B35;
+  --nike-black: #111111;
+  --nike-grey: #757575;
+  --nike-light: #F5F5F5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  background-color: var(--nike-black);
+  color: white;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--nike-orange);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff5722;
+}
+
+/* Smooth cursor */
+* {
+  cursor: none;
+}
+
+button, a, input, select, textarea {
+  cursor: none;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Premium gradient backgrounds */
+.gradient-radial {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 107, 53, 0.15) 0%, transparent 50%);
+}
+
+.gradient-mesh {
+  background: 
+    radial-gradient(at 0% 0%, rgba(255, 107, 53, 0.2) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 107, 53, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(255, 255, 255, 0.05) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(255, 255, 255, 0.03) 0px, transparent 50%);
+}
+
+/* Text selection */
+::selection {
+  background-color: var(--nike-orange);
+  color: white;
+}
+
+/* Loading animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 40px rgba(255, 107, 53, 0.8);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Performance optimizations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+/* Premium typography */
+.heading-display {
+  font-family: 'Archivo Black', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.heading-xl {
+  font-size: clamp(3rem, 10vw, 8rem);
+}
+
+.heading-lg {
+  font-size: clamp(2rem, 6vw, 5rem);
+}
+
+.heading-md {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+}
+
+/* Utility classes */
+.text-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #757575 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-orange {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff9068 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Premium button */
+.btn-primary {
+  @apply px-8 py-4 bg-white text-nike-black font-semibold rounded-full 
+         transition-all duration-300 hover:bg-nike-orange hover:text-white
+         hover:scale-105 active:scale-95;
+}
+
+.btn-secondary {
+  @apply px-8 py-4 border-2 border-white text-white font-semibold rounded-full
+         transition-all duration-300 hover:bg-white hover:text-nike-black
+         hover:scale-105 active:scale-95;
+}
+
+/* Container utilities */
+.container-custom {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Noise texture overlay */
+.noise-overlay {
+  position: relative;
+}
+
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.3;
+}
