@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-// Product data - in a real app, this would come from an API
+// Product data with real images and 3D model support
 const productData = [
   {
     id: 1,
@@ -11,7 +11,9 @@ const productData = [
     sizes: [7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 12],
     description: 'Experience the perfect fusion of style and performance with Air Max Pulse. Featuring revolutionary cushioning technology and a bold, contemporary design.',
     features: ['Max Air cushioning', 'Breathable mesh upper', 'Durable rubber outsole', 'Reflective details'],
-    modelPath: '/models/shoe1.glb', // In real app, this would be actual 3D model
+    image: '/images/products/Air_Max_Pulse.png',
+    modelPath: '/models/dc_nyjah_new.glb',  // ← Add this
+    useGLBModel: true,  
   },
   {
     id: 2,
@@ -22,7 +24,9 @@ const productData = [
     sizes: [7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 12],
     description: 'The pinnacle of speed meets unparalleled comfort. Pegasus Turbo delivers elite-level performance for runners who demand the best.',
     features: ['ZoomX foam', 'Carbon fiber plate', 'Lightweight knit upper', 'Enhanced energy return'],
-    modelPath: '/models/shoe2.glb',
+    image: '/images/products/Pegasus_Turbo.png',
+    modelPath: null,
+    useGLBModel: false,
   },
   {
     id: 3,
@@ -33,7 +37,9 @@ const productData = [
     sizes: [6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 12, 13],
     description: 'An icon since 1972. The Cortez combines timeless style with legendary comfort, perfect for everyday wear.',
     features: ['Classic foam midsole', 'Premium leather upper', 'Herringbone outsole', 'Retro styling'],
-    modelPath: '/models/shoe3.glb',
+    image: '/images/products/Cortez_Classic.png',
+    modelPath: null,
+    useGLBModel: false,
   },
   {
     id: 4,
@@ -44,7 +50,9 @@ const productData = [
     sizes: [7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 12],
     description: 'Designed to keep you running. React Infinity provides superior cushioning and stability for your longest runs.',
     features: ['React foam technology', 'Flyknit upper', 'Rocker shape geometry', 'Injury prevention design'],
-    modelPath: '/models/shoe4.glb',
+    image: '/images/products/React_Infinity.png',
+    modelPath: null,
+    useGLBModel: false,
   },
   {
     id: 5,
@@ -55,7 +63,9 @@ const productData = [
     sizes: [6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 12, 13],
     description: 'Basketball heritage meets modern street style. The Blazer Mid 77 brings vintage vibes with contemporary comfort.',
     features: ['Vintage styling', 'Leather and suede upper', 'Exposed foam tongue', 'Classic Nike branding'],
-    modelPath: '/models/shoe5.glb',
+    image: '/images/products/Blazer_Mid_77.png',
+    modelPath: null,
+    useGLBModel: false,
   },
   {
     id: 6,
@@ -66,7 +76,9 @@ const productData = [
     sizes: [7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 12, 13],
     description: 'The ultimate training shoe. Metcon 8 delivers unmatched stability and durability for high-intensity workouts.',
     features: ['Wide, flat heel', 'Hyperlift insert', 'Rope grip tread', 'Reinforced sidewalls'],
-    modelPath: '/models/shoe6.glb',
+    image: '/images/products/Metcon_8.png',
+    modelPath: null,
+    useGLBModel: false,
   },
 ];
 

@@ -1,22 +1,55 @@
 import { Suspense, useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, ContactShadows, useGLTF } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
 
-// 3D Shoe Model Component (using a simple geometric representation)
-function ShoeModel({ color = '#ffffff' }) {
+// GLB Model Loader - For professional 3D models
+function GLBShoeModel({ modelPath }) {
   const meshRef = useRef();
   const [hovered, setHovered] = useState(false);
+  
+  // Load GLB model
+  const { scene } = useGLTF(modelPath);
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      // Smooth floating animation
+      meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * 0.15;
+      // Auto-rotate when not hovered
+      if (!hovered) {
+        meshRef.current.rotation.y += 0.003;
+      }
+    }
+  });
+
+  return (
+    <primitive
+      ref={meshRef}
+      object={scene}
+      scale={3}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+    />
+  );
+}
+
+// Enhanced 3D Shoe Model - Much More Realistic!
+function EnhancedShoeModel({ productImage }) {
+  const meshRef = useRef();
+  const [hovered, setHovered] = useState(false);
+  
+  // Load product image as texture for the shoe
+  const texture = useLoader(THREE.TextureLoader, productImage);
 
   useFrame((state) => {
     if (meshRef.current) {
-      // Gentle floating animation
-      meshRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.1;
-      // Auto-rotate when not interacting
+      // Smooth floating animation
+      meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * 0.15;
+      // Auto-rotate when not hovered
       if (!hovered) {
-        meshRef.current.rotation.y += 0.005;
+        meshRef.current.rotation.y += 0.003;
       }
     }
   });
@@ -26,46 +59,121 @@ function ShoeModel({ color = '#ffffff' }) {
       ref={meshRef}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
+      rotation={[0, Math.PI * 0.15, 0]}
     >
-      {/* Simplified shoe representation using geometric shapes */}
-      {/* Sole */}
-      <mesh position={[0, -0.3, 0]} castShadow>
-        <boxGeometry args={[2, 0.3, 3]} />
+      {/* OUTSOLE - Bottom of shoe */}
+      <mesh position={[0, -0.5, 0]} castShadow receiveShadow>
+        <boxGeometry args={[2.2, 0.25, 3.5]} />
         <meshStandardMaterial 
-          color={color} 
-          roughness={0.3}
-          metalness={0.8}
+          color="#1a1a1a"
+          roughness={0.8}
+          metalness={0.1}
         />
       </mesh>
-      
-      {/* Upper */}
-      <mesh position={[0, 0.2, -0.3]} rotation={[0.3, 0, 0]} castShadow>
-        <boxGeometry args={[1.8, 0.8, 2]} />
+
+      {/* MIDSOLE - Cushioning layer */}
+      <mesh position={[0, -0.25, 0]} castShadow receiveShadow>
+        <boxGeometry args={[2.1, 0.3, 3.4]} />
         <meshStandardMaterial 
-          color={color} 
-          roughness={0.5}
+          color="#ffffff"
+          roughness={0.4}
           metalness={0.2}
         />
       </mesh>
-      
-      {/* Tongue */}
-      <mesh position={[0, 0.5, 0.3]} rotation={[-0.2, 0, 0]} castShadow>
-        <boxGeometry args={[1.2, 0.6, 0.4]} />
+
+      {/* HEEL CUP - Back support */}
+      <mesh position={[0, 0.3, -1.4]} castShadow receiveShadow>
+        <boxGeometry args={[1.8, 1.2, 0.6]} />
         <meshStandardMaterial 
-          color={color} 
+          map={texture}
+          roughness={0.6}
+          metalness={0.1}
+        />
+      </mesh>
+
+      {/* UPPER - Main body curved */}
+      <mesh position={[0, 0.1, -0.3]} rotation={[0.15, 0, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.9, 0.9, 2.5]} />
+        <meshStandardMaterial 
+          map={texture}
+          roughness={0.5}
+          metalness={0.15}
+        />
+      </mesh>
+
+      {/* TOE BOX - Front rounded */}
+      <mesh position={[0, 0, 1.2]} rotation={[0.2, 0, 0]} castShadow receiveShadow>
+        <sphereGeometry args={[0.9, 16, 16]} />
+        <meshStandardMaterial 
+          map={texture}
+          roughness={0.5}
+          metalness={0.1}
+        />
+      </mesh>
+
+      {/* TONGUE - Top padded section */}
+      <mesh position={[0, 0.5, 0.2]} rotation={[-0.3, 0, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.4, 0.8, 0.3]} />
+        <meshStandardMaterial 
+          map={texture}
+          roughness={0.7}
+        />
+      </mesh>
+
+      {/* NIKE SWOOSH - Iconic logo (left side) */}
+      <mesh position={[1.0, 0.2, 0.2]} rotation={[0, 0, -0.3]} castShadow>
+        <boxGeometry args={[0.05, 0.3, 1.2]} />
+        <meshStandardMaterial 
+          color="#FF6B35"
+          roughness={0.2}
+          metalness={0.8}
+          emissive="#FF6B35"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+
+      {/* NIKE SWOOSH - Iconic logo (right side) */}
+      <mesh position={[-1.0, 0.2, 0.2]} rotation={[0, 0, 0.3]} castShadow>
+        <boxGeometry args={[0.05, 0.3, 1.2]} />
+        <meshStandardMaterial 
+          color="#FF6B35"
+          roughness={0.2}
+          metalness={0.8}
+          emissive="#FF6B35"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+
+      {/* LACE GUARD - Top reinforcement */}
+      <mesh position={[0, 0.7, 0.4]} castShadow>
+        <boxGeometry args={[1.2, 0.15, 0.8]} />
+        <meshStandardMaterial 
+          color="#2a2a2a"
           roughness={0.6}
         />
       </mesh>
-      
-      {/* Nike Swoosh accent */}
-      <mesh position={[0.5, 0.3, 0.5]} rotation={[0, 0, -0.3]} castShadow>
-        <boxGeometry args={[0.8, 0.1, 0.05]} />
+
+      {/* AIR UNIT - Visible cushioning (if applicable) */}
+      <mesh position={[0, -0.3, -0.8]} castShadow>
+        <sphereGeometry args={[0.4, 16, 16]} />
         <meshStandardMaterial 
-          color="#FF6B35" 
-          roughness={0.2}
+          color="#FF6B35"
+          transparent={true}
+          opacity={0.6}
+          roughness={0.1}
           metalness={0.9}
           emissive="#FF6B35"
-          emissiveIntensity={0.3}
+          emissiveIntensity={0.5}
+        />
+      </mesh>
+
+      {/* Ambient glow around shoe */}
+      <mesh position={[0, -0.5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[3, 32]} />
+        <meshBasicMaterial 
+          color="#FF6B35"
+          transparent={true}
+          opacity={0.05}
         />
       </mesh>
     </group>
@@ -75,27 +183,6 @@ function ShoeModel({ color = '#ffffff' }) {
 const Product3DViewer = () => {
   const { selectedProduct, selectedColor } = useStore();
   const [autoRotate, setAutoRotate] = useState(true);
-  
-  // Color mapping for different shoe variants
-  const colorMap = {
-    'Black/White': '#1a1a1a',
-    'Triple White': '#ffffff',
-    'Volt/Black': '#d4ff00',
-    'Blue/Orange': '#1e90ff',
-    'All Black': '#000000',
-    'White/Red': '#ff0000',
-    'White/Red/Blue': '#ffffff',
-    'All White': '#f5f5f5',
-    'Crimson/White': '#dc143c',
-    'Triple Black': '#0a0a0a',
-    'Blue Void': '#1e3a8a',
-    'Vintage Green': '#556b2f',
-    'University Red': '#e63946',
-    'Gym Red': '#ff0000',
-    'Navy/Gold': '#000080',
-  };
-  
-  const currentColor = selectedColor ? colorMap[selectedColor] || '#ffffff' : '#ffffff';
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-nike-black to-nike-grey-900 flex items-center justify-center py-20">
@@ -109,47 +196,51 @@ const Product3DViewer = () => {
             transition={{ duration: 0.8 }}
             className="relative h-[600px] glass rounded-3xl overflow-hidden"
           >
-            <Canvas shadows camera={{ position: [5, 2, 5], fov: 50 }}>
-              <PerspectiveCamera makeDefault position={[5, 2, 5]} />
+            <Canvas shadows camera={{ position: [0, 0, 8], fov: 50 }}>
+              <PerspectiveCamera makeDefault position={[0, 0, 8]} />
               
               {/* Lighting */}
-              <ambientLight intensity={0.5} />
+              <ambientLight intensity={0.6} />
               <spotLight 
                 position={[10, 10, 10]} 
                 angle={0.3} 
                 penumbra={1} 
                 intensity={2}
                 castShadow
-                shadow-mapSize={[2048, 2048]}
+                shadow-mapSize={[1024, 1024]}
               />
-              <pointLight position={[-10, 0, -5]} color="#FF6B35" intensity={0.5} />
-              <pointLight position={[0, -10, 0]} intensity={0.5} />
+              <pointLight position={[-10, 0, -5]} color="#FF6B35" intensity={0.8} />
+              <pointLight position={[0, -5, 0]} intensity={0.5} />
               
               {/* Environment */}
               <Environment preset="city" />
               
-              {/* 3D Model */}
+              {/* 3D Model - GLB or Enhanced Procedural */}
               <Suspense fallback={null}>
-                <ShoeModel color={currentColor} />
+                {selectedProduct.useGLBModel && selectedProduct.modelPath ? (
+                  <GLBShoeModel modelPath={selectedProduct.modelPath} />
+                ) : (
+                  <EnhancedShoeModel productImage={selectedProduct.image} />
+                )}
               </Suspense>
               
               {/* Shadow */}
               <ContactShadows 
-                position={[0, -1, 0]} 
-                opacity={0.5} 
+                position={[0, -2, 0]} 
+                opacity={0.4} 
                 scale={10} 
                 blur={2} 
-                far={3} 
+                far={4} 
               />
               
               {/* Controls */}
               <OrbitControls 
                 enableZoom={true}
                 enablePan={false}
-                minDistance={3}
-                maxDistance={10}
+                minDistance={5}
+                maxDistance={15}
                 autoRotate={autoRotate}
-                autoRotateSpeed={2}
+                autoRotateSpeed={1.5}
                 onStart={() => setAutoRotate(false)}
                 onEnd={() => setTimeout(() => setAutoRotate(true), 3000)}
               />

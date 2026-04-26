@@ -24,46 +24,19 @@ const ProductCard = ({ product, index }) => {
       whileHover={{ y: -10 }}
       className="glass rounded-2xl overflow-hidden group cursor-pointer"
     >
-      {/* Product Image Placeholder */}
+      {/* Product Image */}
       <div className="relative aspect-square bg-gradient-to-br from-nike-grey-900 to-nike-black p-8 overflow-hidden">
         <motion.div
           whileHover={{ scale: 1.1, rotate: -5 }}
           transition={{ duration: 0.3 }}
           className="w-full h-full flex items-center justify-center"
         >
-          {/* Simplified shoe illustration */}
-          <div className="relative w-full h-full">
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <svg viewBox="0 0 200 120" className="w-full h-full opacity-80">
-                <defs>
-                  <linearGradient id={`gradient-${product.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="white" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#FF6B35" stopOpacity="0.6" />
-                  </linearGradient>
-                </defs>
-                
-                {/* Shoe sole */}
-                <ellipse cx="100" cy="80" rx="80" ry="15" fill={`url(#gradient-${product.id})`} />
-                
-                {/* Shoe upper */}
-                <path
-                  d="M 40 80 Q 40 40, 80 40 L 160 40 Q 180 40, 180 60 L 180 80 Z"
-                  fill={`url(#gradient-${product.id})`}
-                />
-                
-                {/* Nike swoosh */}
-                <path
-                  d="M 120 55 Q 140 50, 150 55 L 130 60 Z"
-                  fill="#FF6B35"
-                  opacity="0.8"
-                />
-              </svg>
-            </motion.div>
-          </div>
+          <img 
+            src={product.image} 
+            alt={product.name}
+            className="w-full h-full object-contain drop-shadow-2xl"
+            loading="lazy"
+          />
         </motion.div>
         
         {/* Category badge */}

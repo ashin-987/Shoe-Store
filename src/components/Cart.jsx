@@ -11,15 +11,12 @@ const CartItem = ({ item, index, onUpdateQuantity, onRemove }) => {
       className="flex gap-4 p-4 glass rounded-xl border border-white/10"
     >
       {/* Product thumbnail */}
-      <div className="w-24 h-24 bg-gradient-to-br from-nike-grey-900 to-nike-black rounded-lg flex items-center justify-center flex-shrink-0">
-        <svg viewBox="0 0 100 60" className="w-16 h-16 opacity-60">
-          <path
-            d="M 20 40 Q 20 20, 40 20 L 80 20 Q 90 20, 90 30 L 90 40 Z"
-            fill="white"
-            opacity="0.5"
-          />
-          <ellipse cx="50" cy="40" rx="40" ry="8" fill="white" opacity="0.3" />
-        </svg>
+      <div className="w-24 h-24 bg-gradient-to-br from-nike-grey-900 to-nike-black rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <img 
+          src={item.product.image} 
+          alt={item.product.name}
+          className="w-full h-full object-contain p-2"
+        />
       </div>
 
       {/* Product details */}
