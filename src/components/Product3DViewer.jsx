@@ -5,14 +5,35 @@ import { motion } from 'framer-motion';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
 
-// GLB Model Loader - For professional 3D models
+// Loading Fallback Component
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center h-full">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-nike-orange border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-white/70">Loading 3D Model...</p>
+      </div>
+    </div>
+  );
+}
+
+// GLB Model Loader - IMPROVED with error handling
 function GLBShoeModel({ modelPath }) {
   const meshRef = useRef();
   const [hovered, setHovered] = useState(false);
+  const [error, setError] = useState(false);
   
-  // Load GLB model
-  const { scene } = useGLTF(modelPath);
-  
+  // Load GLB model with error handling
+  let scene;
+  try {
+    const gltf = useGLTF(modelPath, true);
+    scene = gltf.scene;
+  } catch (err) {
+    console.error('Error loading GLB model:', err);
+    setError(true);
+    return null;
+  }
+
   useFrame((state) => {
     if (meshRef.current) {
       // Smooth floating animation
@@ -24,11 +45,17 @@ function GLBShoeModel({ modelPath }) {
     }
   });
 
+  if (error) {
+    return null;
+  }
+
   return (
     <primitive
       ref={meshRef}
       object={scene}
-      scale={3}
+      scale={2.5}  // Adjusted scale - try different values if needed
+      position={[0, -1, 0]}  // Adjusted position
+      rotation={[0, 0, 0]}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     />
@@ -183,6 +210,7 @@ function EnhancedShoeModel({ productImage }) {
 const Product3DViewer = () => {
   const { selectedProduct, selectedColor } = useStore();
   const [autoRotate, setAutoRotate] = useState(true);
+  const [modelError, setModelError] = useState(false);
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-nike-black to-nike-grey-900 flex items-center justify-center py-20">
@@ -196,55 +224,77 @@ const Product3DViewer = () => {
             transition={{ duration: 0.8 }}
             className="relative h-[600px] glass rounded-3xl overflow-hidden"
           >
-            <Canvas shadows camera={{ position: [0, 0, 8], fov: 50 }}>
-              <PerspectiveCamera makeDefault position={[0, 0, 8]} />
-              
-              {/* Lighting */}
-              <ambientLight intensity={0.6} />
-              <spotLight 
-                position={[10, 10, 10]} 
-                angle={0.3} 
-                penumbra={1} 
-                intensity={2}
-                castShadow
-                shadow-mapSize={[1024, 1024]}
-              />
-              <pointLight position={[-10, 0, -5]} color="#FF6B35" intensity={0.8} />
-              <pointLight position={[0, -5, 0]} intensity={0.5} />
-              
-              {/* Environment */}
-              <Environment preset="city" />
-              
-              {/* 3D Model - GLB or Enhanced Procedural */}
-              <Suspense fallback={null}>
-                {selectedProduct.useGLBModel && selectedProduct.modelPath ? (
-                  <GLBShoeModel modelPath={selectedProduct.modelPath} />
-                ) : (
-                  <EnhancedShoeModel productImage={selectedProduct.image} />
-                )}
-              </Suspense>
-              
-              {/* Shadow */}
-              <ContactShadows 
-                position={[0, -2, 0]} 
-                opacity={0.4} 
-                scale={10} 
-                blur={2} 
-                far={4} 
-              />
-              
-              {/* Controls */}
-              <OrbitControls 
-                enableZoom={true}
-                enablePan={false}
-                minDistance={5}
-                maxDistance={15}
-                autoRotate={autoRotate}
-                autoRotateSpeed={1.5}
-                onStart={() => setAutoRotate(false)}
-                onEnd={() => setTimeout(() => setAutoRotate(true), 3000)}
-              />
-            </Canvas>
+            {modelError ? (
+              // Error Fallback
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center p-8">
+                  <div className="text-6xl mb-4">⚠️</div>
+                  <h3 className="text-xl font-bold mb-2">Model Loading Error</h3>
+                  <p className="text-white/60 mb-4">
+                    Unable to load 3D model. Showing enhanced visualization instead.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <Canvas 
+                shadows 
+                camera={{ position: [0, 0, 8], fov: 50 }}
+                onCreated={({ gl }) => {
+                  gl.setClearColor('#111111');
+                }}
+              >
+                <PerspectiveCamera makeDefault position={[0, 0, 8]} />
+                
+                {/* Lighting */}
+                <ambientLight intensity={0.6} />
+                <spotLight 
+                  position={[10, 10, 10]} 
+                  angle={0.3} 
+                  penumbra={1} 
+                  intensity={2}
+                  castShadow
+                  shadow-mapSize={[1024, 1024]}
+                />
+                <pointLight position={[-10, 0, -5]} color="#FF6B35" intensity={0.8} />
+                <pointLight position={[0, -5, 0]} intensity={0.5} />
+                
+                {/* Environment */}
+                <Environment preset="city" />
+                
+                {/* 3D Model - GLB or Enhanced Procedural */}
+                <Suspense fallback={<LoadingSpinner />}>
+                  {selectedProduct.useGLBModel && selectedProduct.modelPath ? (
+                    <GLBShoeModel 
+                      modelPath={selectedProduct.modelPath}
+                      onError={() => setModelError(true)}
+                    />
+                  ) : (
+                    <EnhancedShoeModel productImage={selectedProduct.image} />
+                  )}
+                </Suspense>
+                
+                {/* Shadow */}
+                <ContactShadows 
+                  position={[0, -2, 0]} 
+                  opacity={0.4} 
+                  scale={10} 
+                  blur={2} 
+                  far={4} 
+                />
+                
+                {/* Controls */}
+                <OrbitControls 
+                  enableZoom={true}
+                  enablePan={false}
+                  minDistance={3}
+                  maxDistance={20}
+                  autoRotate={autoRotate}
+                  autoRotateSpeed={1.5}
+                  onStart={() => setAutoRotate(false)}
+                  onEnd={() => setTimeout(() => setAutoRotate(true), 3000)}
+                />
+              </Canvas>
+            )}
             
             {/* Controls overlay */}
             <div className="absolute bottom-6 left-6 right-6">
@@ -259,6 +309,14 @@ const Product3DViewer = () => {
                   >
                     {autoRotate ? '⏸ Pause' : '▶ Auto-rotate'}
                   </button>
+                  {selectedProduct.useGLBModel && (
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
+                    >
+                      🔄 Reload Model
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
