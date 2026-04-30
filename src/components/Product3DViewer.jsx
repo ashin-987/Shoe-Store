@@ -1,26 +1,20 @@
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, ContactShadows, useGLTF } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
 
-// GLB Model Loader - FIXED VERSION
+// GLB Model Loader - SIMPLE AND WORKS
 function GLBShoeModel({ modelPath }) {
   const groupRef = useRef();
   const [hovered, setHovered] = useState(false);
   
-  // Load GLB model
   const { scene } = useGLTF(modelPath);
-  
-  // Clone the scene to avoid reusing the same object
-  const clonedScene = scene.clone();
 
   useFrame((state) => {
     if (groupRef.current) {
-      // Smooth floating animation
       groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * 0.15;
-      // Auto-rotate when not hovered
       if (!hovered) {
         groupRef.current.rotation.y += 0.003;
       }
@@ -35,7 +29,7 @@ function GLBShoeModel({ modelPath }) {
       scale={2.5}
       position={[0, -1, 0]}
     >
-      <primitive object={clonedScene} />
+      <primitive object={scene.clone()} />
     </group>
   );
 }
@@ -44,15 +38,22 @@ function GLBShoeModel({ modelPath }) {
 function EnhancedShoeModel({ productImage }) {
   const meshRef = useRef();
   const [hovered, setHovered] = useState(false);
+  const [texture, setTexture] = useState(null);
   
-  // Load product image as texture for the shoe
-  const texture = new THREE.TextureLoader().load(productImage);
+  // CORRECT: useEffect for side effects!
+  useEffect(() => {
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      productImage,
+      (loadedTexture) => setTexture(loadedTexture),
+      undefined,
+      (error) => console.error('Texture error:', error)
+    );
+  }, [productImage]);
 
   useFrame((state) => {
     if (meshRef.current) {
-      // Smooth floating animation
       meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * 0.15;
-      // Auto-rotate when not hovered
       if (!hovered) {
         meshRef.current.rotation.y += 0.003;
       }
@@ -66,126 +67,96 @@ function EnhancedShoeModel({ productImage }) {
       onPointerOut={() => setHovered(false)}
       rotation={[0, Math.PI * 0.15, 0]}
     >
-      {/* OUTSOLE - Bottom of shoe */}
+      {/* OUTSOLE */}
       <mesh position={[0, -0.5, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.2, 0.25, 3.5]} />
-        <meshStandardMaterial 
-          color="#1a1a1a"
-          roughness={0.8}
-          metalness={0.1}
-        />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.8} metalness={0.1} />
       </mesh>
 
-      {/* MIDSOLE - Cushioning layer */}
+      {/* MIDSOLE */}
       <mesh position={[0, -0.25, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.1, 0.3, 3.4]} />
-        <meshStandardMaterial 
-          color="#ffffff"
-          roughness={0.4}
-          metalness={0.2}
-        />
+        <meshStandardMaterial color="#ffffff" roughness={0.4} metalness={0.2} />
       </mesh>
 
-      {/* HEEL CUP - Back support */}
+      {/* HEEL CUP */}
       <mesh position={[0, 0.3, -1.4]} castShadow receiveShadow>
         <boxGeometry args={[1.8, 1.2, 0.6]} />
-        <meshStandardMaterial 
-          map={texture}
-          roughness={0.6}
-          metalness={0.1}
-        />
+        <meshStandardMaterial map={texture} roughness={0.6} metalness={0.1} />
       </mesh>
 
-      {/* UPPER - Main body curved */}
+      {/* UPPER */}
       <mesh position={[0, 0.1, -0.3]} rotation={[0.15, 0, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.9, 0.9, 2.5]} />
-        <meshStandardMaterial 
-          map={texture}
-          roughness={0.5}
-          metalness={0.15}
-        />
+        <meshStandardMaterial map={texture} roughness={0.5} metalness={0.15} />
       </mesh>
 
-      {/* TOE BOX - Front rounded */}
+      {/* TOE BOX */}
       <mesh position={[0, 0, 1.2]} rotation={[0.2, 0, 0]} castShadow receiveShadow>
         <sphereGeometry args={[0.9, 16, 16]} />
-        <meshStandardMaterial 
-          map={texture}
-          roughness={0.5}
-          metalness={0.1}
-        />
+        <meshStandardMaterial map={texture} roughness={0.5} metalness={0.1} />
       </mesh>
 
-      {/* TONGUE - Top padded section */}
+      {/* TONGUE */}
       <mesh position={[0, 0.5, 0.2]} rotation={[-0.3, 0, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.4, 0.8, 0.3]} />
-        <meshStandardMaterial 
-          map={texture}
-          roughness={0.7}
-        />
+        <meshStandardMaterial map={texture} roughness={0.7} />
       </mesh>
 
-      {/* NIKE SWOOSH - Iconic logo (left side) */}
+      {/* SWOOSH LEFT */}
       <mesh position={[1.0, 0.2, 0.2]} rotation={[0, 0, -0.3]} castShadow>
         <boxGeometry args={[0.05, 0.3, 1.2]} />
         <meshStandardMaterial 
-          color="#FF6B35"
-          roughness={0.2}
-          metalness={0.8}
-          emissive="#FF6B35"
-          emissiveIntensity={0.3}
+          color="#FF6B35" 
+          roughness={0.2} 
+          metalness={0.8} 
+          emissive="#FF6B35" 
+          emissiveIntensity={0.3} 
         />
       </mesh>
 
-      {/* NIKE SWOOSH - Iconic logo (right side) */}
+      {/* SWOOSH RIGHT */}
       <mesh position={[-1.0, 0.2, 0.2]} rotation={[0, 0, 0.3]} castShadow>
         <boxGeometry args={[0.05, 0.3, 1.2]} />
         <meshStandardMaterial 
-          color="#FF6B35"
-          roughness={0.2}
-          metalness={0.8}
-          emissive="#FF6B35"
-          emissiveIntensity={0.3}
+          color="#FF6B35" 
+          roughness={0.2} 
+          metalness={0.8} 
+          emissive="#FF6B35" 
+          emissiveIntensity={0.3} 
         />
       </mesh>
 
-      {/* LACE GUARD - Top reinforcement */}
+      {/* LACE GUARD */}
       <mesh position={[0, 0.7, 0.4]} castShadow>
         <boxGeometry args={[1.2, 0.15, 0.8]} />
-        <meshStandardMaterial 
-          color="#2a2a2a"
-          roughness={0.6}
-        />
+        <meshStandardMaterial color="#2a2a2a" roughness={0.6} />
       </mesh>
 
-      {/* AIR UNIT - Visible cushioning */}
+      {/* AIR UNIT */}
       <mesh position={[0, -0.3, -0.8]} castShadow>
         <sphereGeometry args={[0.4, 16, 16]} />
         <meshStandardMaterial 
-          color="#FF6B35"
-          transparent={true}
-          opacity={0.6}
-          roughness={0.1}
-          metalness={0.9}
-          emissive="#FF6B35"
-          emissiveIntensity={0.5}
+          color="#FF6B35" 
+          transparent 
+          opacity={0.6} 
+          roughness={0.1} 
+          metalness={0.9} 
+          emissive="#FF6B35" 
+          emissiveIntensity={0.5} 
         />
       </mesh>
 
-      {/* Ambient glow around shoe */}
+      {/* GLOW */}
       <mesh position={[0, -0.5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[3, 32]} />
-        <meshBasicMaterial 
-          color="#FF6B35"
-          transparent={true}
-          opacity={0.05}
-        />
+        <meshBasicMaterial color="#FF6B35" transparent opacity={0.05} />
       </mesh>
     </group>
   );
 }
 
-// Simple loading placeholder
+// Simple loader
 function Loader() {
   return (
     <mesh>
@@ -230,7 +201,7 @@ const Product3DViewer = () => {
               {/* Environment */}
               <Environment preset="city" />
               
-              {/* 3D Model - GLB or Enhanced Procedural */}
+              {/* 3D Model */}
               <Suspense fallback={<Loader />}>
                 {selectedProduct.useGLBModel && selectedProduct.modelPath ? (
                   <GLBShoeModel modelPath={selectedProduct.modelPath} />
