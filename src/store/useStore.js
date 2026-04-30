@@ -12,8 +12,8 @@ const productData = [
     description: 'Experience the perfect fusion of style and performance with Air Max Pulse. Featuring revolutionary cushioning technology and a bold, contemporary design.',
     features: ['Max Air cushioning', 'Breathable mesh upper', 'Durable rubber outsole', 'Reflective details'],
     image: '/images/products/Air_Max_Pulse.png',
-    modelPath: null, // Set to '/models/air-max-pulse.glb' when you have a 3D model
-    useGLBModel: false, // Set to true when you add a GLB model
+    modelPath: '/models/air-max-pulse.glb', // Set to '/models/air-max-pulse.glb' when you have a 3D model
+    useGLBModel: true, // Set to true when you add a GLB model
   },
   {
     id: 2,
